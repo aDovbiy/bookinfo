@@ -27,8 +27,7 @@ sudo apt-get update
 sudo apt-get install -y docker-ce
 sudo docker run hello-world
 # Linux post-install
-sudo groupadd docker
-sudo usermod -aG docker $USER
+sudo usermod -aG docker $USER && newgrp docker
 sudo systemctl enable docker
 else
   echo "docker is already installed"
@@ -42,21 +41,19 @@ if ! [ -x "$(command -v minikube)" ]; then
   && chmod +x minikube
   sudo cp minikube /usr/local/bin/
   # please ensure that you have placed the minikube in the right path so that it can locate when you run with root user
-  sudo cp /usr/local/bin/minikube /usr/bin
-
-  echo "Configuring minikube..."
-  #minikube config set ShowBootstrapperDeprecationNotification false
-  #minikube config set WantUpdateNotification false
-  #minikube config set WantReportErrorPrompt false
-  #minikube config set WantKubectlDownloadMsg false
+  # sudo cp /usr/local/bin/minikube /usr/bin
+  
 else
   echo "minikube is already installed"
-  minikube version
+  sudo minikube version
+  
 fi
 
 echo "Starting minikube..."
-
-
+echo "Configuring minikube..."
+minikube config set vm-driver docker
+minikube start --memory=6384 --cpus=2
+minikube kubectl -- get pods
 
 
 
