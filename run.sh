@@ -1,34 +1,33 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 # Since we will work in the future with ISTIO, I found it correct to use their instructions to prepare the cluster
 # They did a good job, we use their labor.
 if ! [ -x "$(command -v kubectl)" ]; then
   echo "Installing kubectl..."
-  curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+  curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 else
   echo "kubectl is already installed"
   kubectl version
 fi
 
 
-if ! [ -x "$(command -v docker)" ]; then
+if ! [ -x "$(command -v wdocker)" ]; then
   echo "Installing docker..."
   sudo apt-get install -y \
     apt-transport-https \
     ca-certificates \
     curl \
     software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo apt-key fingerprint 0EBFCD88
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  sudo apt-key fingerprint 0EBFCD88
 sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
-sudo apt-get update
-sudo apt-get install -y docker-ce
-sudo docker run hello-world
-# Linux post-install
-sudo usermod -aG docker $USER && newgrp docker
-sudo systemctl enable docker
+  sudo apt-get update
+  sudo apt-get install -y docker-ce
+  sudo gpasswd -a $USER docker  
+  echo "Done Docker" 
+
 else
   echo "docker is already installed"
   docker -v
@@ -53,7 +52,7 @@ echo "Starting minikube..."
 echo "Configuring minikube..."
 minikube config set vm-driver docker
 minikube start --memory=6384 --cpus=2
-minikube kubectl -- get pods
+kubectl get pods
 
 
 
